@@ -39,30 +39,30 @@ android {
     }
 
 }
-
-task instrumentTest(dependsOn: connectedCheck)
-
-task apklib(type: Zip) {
-    dependsOn 'check'
-    appendix = extension = 'apklib'
-
-    from 'AndroidManifest.xml'
-    into('res') {
-        from 'res'
-    }
-    into('src') {
-        from 'src'
-    }
-}
-
-artifacts {
-    archives apklib
-}
-
-task sourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
-}
+//
+//task instrumentTest(dependsOn: connectedCheck)
+//
+//task apklib(type: Zip) {
+//    dependsOn 'check'
+//    appendix = extension = 'apklib'
+//
+//    from 'AndroidManifest.xml'
+//    into('res') {
+//        from 'res'
+//    }
+//    into('src') {
+//        from 'src'
+//    }
+//}
+//
+//artifacts {
+//    archives apklib
+//}
+//
+//task sourcesJar(type: Jar) {
+//    from android.sourceSets.main.java.srcDirs
+//    classifier = 'sources'
+//}
 
 //signing {
 //    sign configurations.archives
