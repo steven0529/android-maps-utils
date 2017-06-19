@@ -96,7 +96,7 @@ public class PreCachingAlgorithmDecorator<T extends ClusterItem> implements Algo
             results = mCache.get(discreteZoom);
             if (results == null) {
                 results = mAlgorithm.getClusters(discreteZoom);
-                mCache.put(discreteZoom, results);
+//                mCache.put(discreteZoom, results);
             }
             mCacheLock.writeLock().unlock();
         }

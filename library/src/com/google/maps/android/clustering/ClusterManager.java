@@ -19,9 +19,12 @@ package com.google.maps.android.clustering;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.maps.android.MarkerManager;
 import com.google.maps.android.clustering.algo.Algorithm;
@@ -44,7 +47,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class ClusterManager<T extends ClusterItem> implements
         GoogleMap.OnCameraIdleListener,
         GoogleMap.OnMarkerClickListener,
-        GoogleMap.OnInfoWindowClickListener {
+        GoogleMap.OnInfoWindowClickListener,
+        GoogleMap.OnCameraChangeListener {
 
     private final MarkerManager mMarkerManager;
     private final MarkerManager.Collection mMarkers;
@@ -214,6 +218,28 @@ public class ClusterManager<T extends ClusterItem> implements
     @Override
     public void onInfoWindowClick(Marker marker) {
         getMarkerManager().onInfoWindowClick(marker);
+    }
+
+    @Override
+    public void onCameraChange(CameraPosition cameraPosition) {
+        LatLngBounds b = mMap.getProjection().getVisibleRegion().latLngBounds;
+        LatLng bNE = b.northeast;
+        LatLng bSW = b.southwest;
+        double bAdjustLat = (bNE.latitude - bSW.latitude) * 0.15; // 15% increase
+        double bAdjustLon = (bNE.longitude - bSW.longitude) * 0.15; // 15% increase
+        bNE = new LatLng(bNE.latitude + bAdjustLat, bNE.longitude + bAdjustLon);
+        bSW = new LatLng(bSW.latitude - bAdjustLat, bSW.longitude - bAdjustLon);
+        Bvb.mapClusterViewportBounds = new LatLngBounds(bSW, bNE);
+
+        if (mRenderer instanceof GoogleMap.OnCameraChangeListener) {
+            ((GoogleMap.OnCameraChangeListener) mRenderer).onCameraChange(cameraPosition);
+        }
+
+        if (Bvb.infoWindowShowing) {
+            Log.i("Cluster", "Not reclustering as we have an infoWindow");
+            return;
+        }
+        cluster();
     }
 
     /**
